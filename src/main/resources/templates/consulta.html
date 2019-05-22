@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Pontos</title>
+	<script>
+	/*<![CDATA[*/
+		const TENANT = '[[${tenant}]]';
+	/*]]>*/
+	</script>
+	<script src="/lib/angular.min.js"></script>
+	<script src="/js/pontos.js"></script>
+	<link href="/css/style.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body ng-app="pontos" ng-controller="PontosController">
+	<h2>Lista Pontos</h2>
+	<table>
+		<thead>
+			<tr>
+				<th><input ng-model="param.table.object.id" type='number' placeholder='ID' ng-change="getGrid()"/></th>
+				<th><input ng-model="param.table.object.nome" type='text' placeholder='Nome' ng-change="getGrid()"/></th>
+				<th><input ng-model="param.table.object.cidade" type='text' placeholder='Cidade' ng-change="getGrid()"/></th>
+				<th><input ng-model="param.table.object.endereco" type='text' placeholder='Endere&ccedil;o' ng-change="getGrid()"/></th>
+				<th><input ng-model="param.table.object.cep" type='text' placeholder='CEP' ng-change="getGrid()"/></th>
+			</tr>
+			<tr>
+				<th ng-click="order('id')">
+					ID 
+					<span class="material-icons" ng-show="has('id','ASC')">keyboard_arrow_down</span>
+					<span class="material-icons" ng-show="has('id','DESC')">keyboard_arrow_up</span>
+					<span class="material-icons" ng-hide="has('id')">unfold_more</span>				
+				</th>
+				<th ng-click="order('nome')">
+					Nome 
+					<span class="material-icons" ng-show="has('nome','ASC')">keyboard_arrow_down</span>
+					<span class="material-icons" ng-show="has('nome','DESC')">keyboard_arrow_up</span>
+					<span class="material-icons" ng-hide="has('nome')">unfold_more</span>				
+				</th>
+				<th ng-click="order('cidade')">
+					Cidade 
+					<span class="material-icons" ng-show="has('cidade','ASC')">keyboard_arrow_down</span>
+					<span class="material-icons" ng-show="has('cidade','DESC')">keyboard_arrow_up</span>
+					<span class="material-icons" ng-hide="has('cidade')">unfold_more</span>				
+				</th>
+				<th ng-click="order('endereco')">
+					Endere&ccedil;o 
+					<span class="material-icons" ng-show="has('endereco','ASC')">keyboard_arrow_down</span>
+					<span class="material-icons" ng-show="has('endereco','DESC')">keyboard_arrow_up</span>
+					<span class="material-icons" ng-hide="has('endereco')">unfold_more</span>				
+				</th>
+				<th ng-click="order('cep')">
+					CEP 
+					<span class="material-icons" ng-show="has('cep','ASC')">keyboard_arrow_down</span>
+					<span class="material-icons" ng-show="has('cep','DESC')">keyboard_arrow_up</span>
+					<span class="material-icons" ng-hide="has('cep')">unfold_more</span>				
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="row in grid.content track by $index">
+				<td>{{row.id}}</td>
+				<td>{{row.nome}}</td>
+				<td>{{row.cidade}}</td>
+				<td>{{row.endereco}}</td>
+				<td>{{row.cep}}</td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="5">
+					<span>
+						<span ng-click="first()" class="material-icons" >first_page</span>
+						<span ng-click="previous()" class="material-icons">chevron_left</span>
+						<span>{{param.table.page+1}} de {{grid.totalPages}}</span>
+						<span ng-click="next()" class="material-icons">chevron_right</span>
+						<span ng-click="last()" class="material-icons">last_page</span>
+					</span>
+					<span>
+						<select ng-model='param.table.resultsPerPage' ng-change="getGrid()">
+							<option ng-value="10">10</option>
+							<option ng-value="15">15</option>
+							<option ng-value="20">20</option>
+							<option ng-value="25">25</option>							
+						</select>
+					</span>
+				</td>
+			</tr>
+		</tfoot>				
+	</table>
+</body>
+</html>

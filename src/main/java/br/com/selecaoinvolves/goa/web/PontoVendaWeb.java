@@ -23,6 +23,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,7 +35,9 @@ import com.opencsv.CSVReader;
 
 import br.com.selecaoinvolves.goa.controller.PontoVendaController;
 import br.com.selecaoinvolves.goa.dao.PontoVendaDAO;
+import br.com.selecaoinvolves.goa.dao.TenantDAO;
 import br.com.selecaoinvolves.goa.model.PontoVenda;
+import br.com.selecaoinvolves.goa.model.Tenant;
 import br.com.selecaoinvolves.goa.util.Message;
 import br.com.selecaoinvolves.goa.util.TableAjax;
 
@@ -43,60 +46,56 @@ import br.com.selecaoinvolves.goa.util.TableAjax;
 public class PontoVendaWeb {
 
 	@Inject private PontoVendaController pontoVendaController;
+	@Inject private TenantDAO tenantDAO;
 	
-	
-	@GetMapping(value = "/get/{tenant}/")
-    public String listaPontosVenda(@PathVariable("tenant") String tenant,
-    		@PathVariable("page") int page,
-    		Model model) {
-		PontoVenda pontoVenda = new PontoVenda();
-		pontoVenda.setTenant(tenant);
-		Example<PontoVenda> example = Example.of(pontoVenda);   
-		ExampleMatcher.matching().withIgnoreNullValues();
-		
-          Page<PontoVenda> pagePontoVenda = pontoVendaController.dao().findAll(example,PageRequest.of(page, 20));
-        		  //.findAll(example, pageable)ByTenant(tenant);
-          if (pagePontoVenda != null) {
-                model.addAttribute("pagePontosVenda", pagePontoVenda);
-          }
-          return "listaPontosVenda";
+	@GetMapping("/")
+    public String index() {
+          return "index";
     }
 	
-	@PostMapping("/grid/{tenant}")
+	@GetMapping("/consulta/{tenant}/")
+    public String consulta(@PathVariable("tenant") String tenant,Model model) {
+		model.addAttribute("tenant", tenant);
+		return "consulta";
+    }
+	
+	@GetMapping("/get/codigos/")
+	@ResponseBody
+    public List<Tenant> getCodigos() {
+          return tenantDAO.findAll();
+    }
+	
+	@PostMapping("/grid/{tenant}/")
+	@ResponseBody
 	public Page<PontoVenda> listaPontosVenda(@PathVariable("tenant") String tenant,
-			@PathVariable("table") TableAjax<PontoVenda> table,
+			@RequestBody TableAjax<PontoVenda> table,
     		Model model) {
 		table.getObject().setTenant(tenant);
-		Example<PontoVenda> example = Example.of(table.getObject());   
-		ExampleMatcher.matching().withIgnoreNullValues();
+		Example<PontoVenda> example = 
+				Example.of(table.getObject(),ExampleMatcher
+											.matching()
+											.withIgnoreNullValues()
+											.withStringMatcher(ExampleMatcher.StringMatcher.STARTING)
+											.withMatcher("endereco", ExampleMatcher.GenericPropertyMatchers.contains()));   
 		return pontoVendaController
         		  .dao()
         		  .findAll(example,PageRequest
-        				  	.of(table.getPage(),table.getResultsPerPage(),Sort.by(table.getOrdenation())));
+        				  	.of(table.getPage(),table.getResultsPerPage(),table.getSort()));
 	}
 	
 	@PostMapping("/upload/")
 	@ResponseBody
     public Message upload(
     		@RequestParam("data") MultipartFile data,
-    		@RequestParam("tenant") String tenant)  throws IOException {
-		
-		
-		InputStreamReader isr = new InputStreamReader(data.getInputStream(), 
-                StandardCharsets.UTF_8);
-        CSVReader reader = new CSVReader(isr);
-        String[] linha;
-        List<PontoVenda> pontosVenda = new ArrayList<PontoVenda>();
-        while ((linha = reader.readNext()) != null) {
-        	try {
-        		pontosVenda.add(pontoVendaController.createBy(linha, tenant));
-        	} catch (Exception e) {
-				e.printStackTrace();
-			}
-        }
-        pontoVendaController.dao().saveAll(pontosVenda);
-        return new Message("Pontos de venda foram salvos com sucesso.");
-    }
+    		@RequestParam("tenant") String tenant){
+		try {
+			pontoVendaController.persistePontosByCSV(data,tenant);
+			return new Message("Pontos de venda foram recebidos e serão salvos em sequência.");
+		}catch (Exception e) {
+			return new Message(e.getMessage(),Boolean.TRUE);
+		}
+	}
+	
 	@GetMapping("/delete/")
 	@ResponseBody
     public Message delete()   {

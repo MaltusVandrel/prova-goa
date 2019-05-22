@@ -86,6 +86,9 @@ public class PontoVenda {
 		this.tenant = tenant;
 	}
     
-	
+	@Override
+	public String toString() {
+		return this.nome+","+this.cidade+","+this.endereco+","+this.cep;
+	}
 	
 }

@@ -2,14 +2,19 @@ package br.com.selecaoinvolves.goa.util;
 
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import br.com.selecaoinvolves.goa.deserializers.CustomSortDeserializer;
 
 public  class TableAjax<T> {
 	
 	private T object;
 	private Integer page;
 	private Integer resultsPerPage;
-	private List<Order> ordenation;//property and direction
+	private Sort sort;//property and direction
 	
 	public T getObject() {
 		return object;
@@ -35,12 +40,12 @@ public  class TableAjax<T> {
 		this.resultsPerPage = resultsPerPage;
 	}
 
-	public List<Order> getOrdenation() {
-		return ordenation;
+	public Sort getSort() {
+		return sort;
 	}
-
-	public void setOrdenation(List<Order> ordenation) {
-		this.ordenation = ordenation;
+	@JsonDeserialize(using=CustomSortDeserializer.class)
+	public void setSort(Sort sort) {
+		this.sort = sort;
 	}
 
 	
