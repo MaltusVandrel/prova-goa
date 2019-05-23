@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Acesso aos Pontos de venda</title>
+	<script src="/lib/angular.min.js"></script>
+	<script src="/js/acesso.js"></script>
+	<link href="/css/style.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body ng-app='acesso' ng-controller="AcessoController" id="pagina-acesso">
+	<div id="painel-acesso">
+		<h1>Selecione seu codigo para acessar</h1> 
+		<input list="browsers" ng-model="tenant.codigo" on-blur="validarCodigoTenant()">
+		<datalist id="browsers">
+		  <option ng-value="value.codigo" ng-repeat="value in codigosTenant track by value.id "/>
+		</datalist>
+		<a ng-click="acessar()" ng-class="{disabled: tenant==undefined}" >Acessar</a>
+	</div>
+</body>
+</html>

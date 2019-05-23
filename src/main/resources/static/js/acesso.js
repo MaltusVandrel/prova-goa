@@ -1,0 +1,19 @@
+angular.module("acesso",[])
+.controller("AcessoController",function($scope,$http){
+	$scope.tenant=undefined;
+	$scope.codigosTenant=[];
+	$http.get("/get/codigos/").then(function(response){
+		$scope.codigosTenant=response.data;
+	});
+	$scope.validarCodigoTenant=function(){
+		for(let codigo of $scope.codigosTenant){
+			if($scope.tenant.id==codigo.id)return;
+		}
+		$scope.tenant=undefined;
+	}
+	$scope.acessar=function(){
+		if($scope.tenant!=undefined){
+			location.href=('/consulta/'+$scope.tenant.codigo+'/');
+		}
+	}
+})
